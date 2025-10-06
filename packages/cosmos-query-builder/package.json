@@ -45,7 +45,6 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
-    "test": "vitest run",
     "type-check": "tsc -p tsconfig.check.json"
   },
   "devDependencies": {
