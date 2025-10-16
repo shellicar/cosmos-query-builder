@@ -1,5 +1,5 @@
 import type { UUID } from 'node:crypto';
-import { type Container, CosmosClient } from '@azure/cosmos';
+import { CosmosClient } from '@azure/cosmos';
 import { createCosmosQueryBuilder, type ICosmosQueryBuilder, SortDirection, type StringFilter, type UUIDFilter } from '@shellicar/cosmos-query-builder';
 
 const client = new CosmosClient('');

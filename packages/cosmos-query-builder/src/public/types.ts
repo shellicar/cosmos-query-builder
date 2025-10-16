@@ -1,3 +1,4 @@
+import type { SqlQuerySpec } from '@azure/cosmos';
 import type { ILogger } from './interfaces';
 
 export type UUIDFilter = {
@@ -49,3 +50,26 @@ export type CosmosQueryBuilderOptions = {
    */
   logger?: ILogger;
 };
+
+export type FeedOptions = {
+  continuationToken?: string | null;
+  maxItemCount?: number | null;
+};
+
+// Reduced interfaces for cosmosdb Container and iterator to avoid version incompatibility issues
+export interface FeedResponse<TResource> {
+  readonly resources?: TResource[];
+  readonly hasMoreResults: boolean;
+  get continuationToken(): string;
+}
+
+export interface QueryIterator<TResource> {
+  fetchNext(): Promise<FeedResponse<TResource>>;
+  fetchAll(): Promise<FeedResponse<TResource>>;
+}
+
+export interface Container {
+  items: {
+    query<TResource>(querySpec: SqlQuerySpec, options?: FeedOptions): QueryIterator<TResource>;
+  };
+}

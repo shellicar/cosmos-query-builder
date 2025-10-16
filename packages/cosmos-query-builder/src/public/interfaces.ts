@@ -1,7 +1,7 @@
-import type { Container, JSONValue, PatchRequestBody, SqlQuerySpec } from '@azure/cosmos';
+import type { JSONValue, PatchRequestBody, SqlQuerySpec } from '@azure/cosmos';
 import type { ExtractPatchPathExpressions, ExtractPathExpressions, PatchPathValue, PathValue } from '../private/types';
 import type { SortDirection } from './enums';
-import type { BasicOpCode, ExtendedOpCode, FetchResult, InstantFilter, StringFilter, UUIDFilter } from './types';
+import type { BasicOpCode, Container, ExtendedOpCode, FetchResult, InstantFilter, StringFilter, UUIDFilter } from './types';
 
 export abstract class ILogger {
   public abstract debug(message?: any, ...optionalParams: any[]): void;

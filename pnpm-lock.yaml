@@ -75,7 +75,7 @@ importers:
   examples/readme:
     devDependencies:
       '@azure/cosmos':
-        specifier: ^4.5.1
+        specifier: ^4.6.0
         version: 4.6.0
       '@shellicar/build-clean':
         specifier: ^1.0.0

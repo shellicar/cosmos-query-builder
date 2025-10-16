@@ -1,7 +1,7 @@
-import type { Container, FeedResponse, JSONValue, PatchRequestBody, SqlParameter, SqlQuerySpec } from '@azure/cosmos';
+import type { JSONValue, PatchRequestBody, SqlParameter, SqlQuerySpec } from '@azure/cosmos';
 import type { SortDirection } from '../public/enums';
 import { ICosmosQueryBuilder, type ILogger } from '../public/interfaces';
-import type { BasicOpCode, CosmosQueryBuilderOptions, ExtendedOpCode, FetchResult, InstantFilter, StringFilter, UUIDFilter } from '../public/types';
+import type { BasicOpCode, CosmosQueryBuilderOptions, ExtendedOpCode, FeedResponse, FetchResult, InstantFilter, Container, StringFilter, UUIDFilter } from '../public/types';
 import { operators } from './consts';
 import { DefaultLogger } from './DefaultLogger';
 import type { ExtractPatchPathExpressions, ExtractPathExpressions, PatchPathValue, PathValue, StringFilterData } from './types';
@@ -231,7 +231,7 @@ export class CosmosQueryBuilder<T extends Record<string, any>> extends ICosmosQu
   }
 
   public override query(): SqlQuerySpec {
-    const lines = [];
+    const lines: string[] = [];
     lines.push(`SELECT\n  ${this._select}`);
     lines.push(`FROM\n  ${this._from}`);
     if (this._join !== '') {
@@ -272,7 +272,7 @@ export class CosmosQueryBuilder<T extends Record<string, any>> extends ICosmosQu
     return items.resources?.[0] ?? null;
   }
 
-  public override async getAll<TSelect = T>(container: Container, limit?: number | null | undefined, cursor?: string | null | undefined): Promise<FetchResult<TSelect>> {
+  public override async getAll<TSelect>(container: Container, limit?: number | null | undefined, cursor?: string | null | undefined): Promise<FetchResult<TSelect>> {
     const itemsQuery = this.query();
     const itemsIterator = container.items.query<TSelect>(itemsQuery, {
       continuationToken: cursor ?? undefined,

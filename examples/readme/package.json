@@ -9,7 +9,7 @@
     "type-check": "tsc -p tsconfig.check.json"
   },
   "devDependencies": {
-    "@azure/cosmos": "^4.5.1",
+    "@azure/cosmos": "^4.6.0",
     "@shellicar/build-clean": "^1.0.0",
     "@shellicar/cosmos-query-builder": "workspace:^",
     "@tsconfig/node22": "^22.0.2",
