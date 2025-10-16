@@ -5,13 +5,16 @@
   "type": "module",
   "license": "MIT",
   "author": "Stephen Hellicar",
-  "description": "TODO: description",
+  "description": "A type-safe query builder for Azure Cosmos DB for NoSQL",
   "keywords": [
-    "azure",
-    "cosmosdb",
-    "typescript",
     "query",
-    "builder"
+    "builder",
+    "azure",
+    "cosmos",
+    "db",
+    "cosmosdb",
+    "nosql",
+    "typescript"
   ],
   "repository": {
     "type": "git",
