@@ -43,8 +43,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup",
-    "dev": "tsup --watch",
+    "build": "tsup-node",
+    "dev": "tsup-node --watch",
     "type-check": "tsc -p tsconfig.check.json"
   },
   "devDependencies": {

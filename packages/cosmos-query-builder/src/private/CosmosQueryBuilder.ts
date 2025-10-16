@@ -1,12 +1,12 @@
 import type { Container, FeedResponse, JSONValue, PatchRequestBody, SqlParameter, SqlQuerySpec } from '@azure/cosmos';
 import type { SortDirection } from '../public/enums';
-import type { ILogger } from '../public/interfaces';
-import type { CosmosQueryBuilderOptions, FetchResult, InstantFilter, OpCode, StringFilter, UUIDFilter } from '../public/types';
+import { ICosmosQueryBuilder, type ILogger } from '../public/interfaces';
+import type { BasicOpCode, CosmosQueryBuilderOptions, ExtendedOpCode, FetchResult, InstantFilter, StringFilter, UUIDFilter } from '../public/types';
 import { operators } from './consts';
 import { DefaultLogger } from './DefaultLogger';
 import type { ExtractPatchPathExpressions, ExtractPathExpressions, PatchPathValue, PathValue, StringFilterData } from './types';
 
-export class CosmosQueryBuilder<T extends Record<string, any>> {
+export class CosmosQueryBuilder<T extends Record<string, any>> extends ICosmosQueryBuilder<T> {
   private _orderBy?: string;
   private _select = '*';
   private _groupBy: string | null = null;
@@ -17,7 +17,8 @@ export class CosmosQueryBuilder<T extends Record<string, any>> {
   private _limit: number | undefined;
   private _logger: ILogger;
 
-  constructor(options?: CosmosQueryBuilderOptions) {
+  public constructor(options?: CosmosQueryBuilderOptions) {
+    super();
     this._logger = options?.logger ?? new DefaultLogger();
   }
 
@@ -37,19 +38,19 @@ export class CosmosQueryBuilder<T extends Record<string, any>> {
     this._parameters = value;
   }
 
-  handleStringFilter = (prefix: string, value: StringFilter) => {
+  private handleStringFilter(prefix: string, value: StringFilter) {
     return this.handleFilterObject(prefix, value);
-  };
+  }
 
-  handleUuidFilter = (prefix: string, value: UUIDFilter) => {
+  private handleUuidFilter(prefix: string, value: UUIDFilter) {
     return this.handleFilterObject(prefix, value);
-  };
+  }
 
-  handleInstantFilter = (prefix: string, value: InstantFilter) => {
+  private handleInstantFilter(prefix: string, value: InstantFilter) {
     return this.handleFilterObject(prefix, value);
-  };
+  }
 
-  handleFilterObject = (prefix: string, value: StringFilterData & { __typeInfo: string }) => {
+  private handleFilterObject(prefix: string, value: StringFilterData & { __typeInfo: string }) {
     const { __typeInfo, ...rest } = value;
     for (const [key, value2] of Object.entries(rest).filter((x) => x[1] !== undefined)) {
       const path = prefix;
@@ -75,9 +76,9 @@ export class CosmosQueryBuilder<T extends Record<string, any>> {
       }
       this._parameters.push({ name: parameterName, value: value2 });
     }
-  };
+  }
 
-  private _buildQuery = (query: Record<string, any> | null | undefined, prefix = 'c') => {
+  private _buildQuery(query: Record<string, any> | null | undefined, prefix = 'c'): void {
     if (query != null) {
       const { __typeInfo, ...rest } = query;
       const queryKeys = Object.keys(rest);
@@ -102,15 +103,15 @@ export class CosmosQueryBuilder<T extends Record<string, any>> {
         }
       }
     }
-  };
+  }
 
-  public buildQuery(query: Record<string, any> | undefined | null, prefix = 'c') {
+  public override buildQuery(query: Record<string, any> | undefined | null, prefix = 'c'): void {
     this._buildQuery(query, prefix);
   }
 
-  public orderBy(): void;
-  public orderBy<P extends ExtractPathExpressions<T>>(field: P, direction: SortDirection): void;
-  public orderBy<P extends ExtractPathExpressions<T>>(field?: P, direction?: SortDirection) {
+  public override orderBy(): void;
+  public override orderBy<P extends ExtractPathExpressions<T>>(field: P, direction: SortDirection): void;
+  public override orderBy<P extends ExtractPathExpressions<T>>(field?: P, direction?: SortDirection) {
     if (field == null || direction == null) {
       this._orderBy = undefined;
     } else {
@@ -118,30 +119,30 @@ export class CosmosQueryBuilder<T extends Record<string, any>> {
     }
   }
 
-  public groupBy(value: string) {
+  public override groupBy(value: string): void {
     this._groupBy = `\nGROUP BY\n ${value}`;
   }
 
-  public select(value: string) {
+  public override select(value: string): void {
     this._select = value;
   }
 
-  private parameter(name: string, value: JSONValue) {
+  private parameter(name: string, value: JSONValue): void {
     this._parameters.push({
       name,
       value,
     });
   }
 
-  public limit(limit: number) {
+  public override limit(limit: number): void {
     this._limit = limit;
   }
 
-  join<P extends ExtractPathExpressions<T>>(value: string, statement: P): void {
+  public override join<P extends ExtractPathExpressions<T>>(value: string, statement: P): void {
     this._join = `${value} IN c.${statement}`;
   }
 
-  whereFuzzy<P extends ExtractPathExpressions<T>>(value: string, fields: [P, ...P[]]) {
+  public override whereFuzzy<P extends ExtractPathExpressions<T>>(value: string, fields: [P, ...P[]]): void {
     const parameterName = `@p${this._parameters.length}`;
     const lines: string[] = [];
     for (const field of fields) {
@@ -153,14 +154,14 @@ export class CosmosQueryBuilder<T extends Record<string, any>> {
     this._parameters.push({ name: parameterName, value });
   }
 
-  whereRaw(field: string, operator: Exclude<OpCode, 'isNull' | 'contains' | 'in'>, value: JSONValue): void {
+  public override whereRaw(field: string, operator: Exclude<ExtendedOpCode, 'isNull' | 'contains' | 'in'>, value: JSONValue): void {
     const parameterName = `@p${this._parameters.length}`;
     const sqlOperator = operators[operator];
     this._queries.push(`${field} ${sqlOperator} ${parameterName}`);
     this._parameters.push({ name: parameterName, value });
   }
 
-  whereOr(conditions: Array<{ field: string; operator: OpCode; value: JSONValue }>) {
+  public override whereOr(conditions: Array<{ field: string; operator: ExtendedOpCode; value: JSONValue }>): void {
     const orClauses: string[] = [];
     for (const condition of conditions) {
       const { field, operator, value } = condition;
@@ -186,11 +187,11 @@ export class CosmosQueryBuilder<T extends Record<string, any>> {
     }
   }
 
-  where<P extends ExtractPathExpressions<T>>(field: P, operator: 'isNull'): void;
-  where<P extends ExtractPathExpressions<T>>(field: P, operator: 'in', value: readonly PathValue<T, P>[]): void;
-  where<P extends ExtractPathExpressions<T>>(field: P, operator: 'contains', value: PathValue<T, P>[number]): void;
-  where<P extends ExtractPathExpressions<T>, V extends PathValue<T, P>>(field: P, operator: Exclude<OpCode, 'isNull' | 'in'>, value: V): void;
-  where<P extends ExtractPathExpressions<T>, V extends PathValue<T, P>>(field: P, operator: OpCode, value?: V | readonly V[]) {
+  public override where<P extends ExtractPathExpressions<T>>(field: P, operator: 'isNull'): void;
+  public override where<P extends ExtractPathExpressions<T>>(field: P, operator: 'in', value: readonly PathValue<T, P>[]): void;
+  public override where<P extends ExtractPathExpressions<T>>(field: P, operator: 'contains', value: PathValue<T, P>[number]): void;
+  public override where<P extends ExtractPathExpressions<T>, V extends PathValue<T, P>>(field: P, operator: BasicOpCode, value: V): void;
+  public override where<P extends ExtractPathExpressions<T>, V extends PathValue<T, P>>(field: P, operator: ExtendedOpCode, value?: V | readonly V[]): void {
     const parameterName = `@p${this._parameters.length}`;
 
     if (operator === 'isNull') {
@@ -218,7 +219,7 @@ export class CosmosQueryBuilder<T extends Record<string, any>> {
     }
   }
 
-  public filter(x: { clause: string; parameter?: JSONValue }) {
+  public filter(x: { clause: string; parameter?: JSONValue }): void {
     const paramName = `@p${this._parameters.length}`;
     this._queries.push(x.clause.replace('@', paramName));
     if (x.parameter != null) {
@@ -229,7 +230,7 @@ export class CosmosQueryBuilder<T extends Record<string, any>> {
     }
   }
 
-  public query(): SqlQuerySpec {
+  public override query(): SqlQuerySpec {
     const lines = [];
     lines.push(`SELECT\n  ${this._select}`);
     lines.push(`FROM\n  ${this._from}`);
@@ -263,7 +264,7 @@ export class CosmosQueryBuilder<T extends Record<string, any>> {
     return result;
   }
 
-  async getOne<TSelect = T>(container: Container): Promise<TSelect | null> {
+  public override async getOne<TSelect = T>(container: Container): Promise<TSelect | null> {
     const itemsQuery = this.query();
     const itemsIterator = container.items.query<TSelect>(itemsQuery);
     const items = await itemsIterator.fetchNext();
@@ -271,7 +272,7 @@ export class CosmosQueryBuilder<T extends Record<string, any>> {
     return items.resources?.[0] ?? null;
   }
 
-  async getAll<TSelect = T>(container: Container, limit?: number | null | undefined, cursor?: string | null | undefined): Promise<FetchResult<TSelect>> {
+  public override async getAll<TSelect = T>(container: Container, limit?: number | null | undefined, cursor?: string | null | undefined): Promise<FetchResult<TSelect>> {
     const itemsQuery = this.query();
     const itemsIterator = container.items.query<TSelect>(itemsQuery, {
       continuationToken: cursor ?? undefined,
@@ -312,7 +313,7 @@ export class CosmosQueryBuilder<T extends Record<string, any>> {
     return result;
   }
 
-  public patch<P extends ExtractPatchPathExpressions<T>>(...operations: Array<{ path: P; op: 'set' | 'add' | 'replace'; value: PatchPathValue<T, P> } | { path: P; op: 'remove' }>): PatchRequestBody {
+  public override patch<P extends ExtractPatchPathExpressions<T>>(...operations: Array<{ path: P; op: 'set' | 'add' | 'replace'; value: PatchPathValue<T, P> } | { path: P; op: 'remove' }>): PatchRequestBody {
     const patchOperations = operations.map((opDef) => {
       if (opDef.op === 'remove') {
         return { op: opDef.op, path: opDef.path };

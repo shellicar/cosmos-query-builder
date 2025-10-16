@@ -4,7 +4,7 @@ import { defineConfig, type Options } from 'tsup';
 const commonOptions = (config: Options) =>
   ({
     bundle: true,
-    clean: true,
+    clean: false,
     dts: true,
     entry: ['src/index.ts'],
     esbuildPlugins: [cleanPlugin({ destructive: true })],

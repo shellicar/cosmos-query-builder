@@ -31,7 +31,8 @@ export type TypeInfo = {
   [key: string]: TypeInfo | string;
 };
 
-export type OpCode = 'eq' | 'in' | 'contains' | 'isNull' | 'gt' | 'lt' | 'ge' | 'le' | 'ne';
+export type ExtendedOpCode = BasicOpCode | 'contains' | 'in' | 'isNull';
+export type BasicOpCode = 'eq' | 'gt' | 'lt' | 'ge' | 'le' | 'ne';
 
 export type FetchResult<T> = {
   items: T[];

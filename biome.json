@@ -26,6 +26,12 @@
         "noExplicitAny": "info"
       },
       "style": {
+        "useConsistentMemberAccessibility": {
+          "level": "info",
+          "options": {
+            "accessibility": "explicit"
+          }
+        },
         "useBlockStatements": "error",
         "noNonNullAssertion": "warn"
       }

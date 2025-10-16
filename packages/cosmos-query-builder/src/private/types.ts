@@ -12,7 +12,6 @@ type DotPath<T> = PathBuilder<T, '.'>;
 type SlashPathCore<T> = PathBuilder<T, '/'>;
 
 export type ExtractPathExpressions<T> = DotPath<T>;
-// Patch
 export type ExtractPatchPathExpressions<T> = `/${SlashPathCore<T>}` | `/${SlashPathCore<T>}/-`;
 
 type PathValueResolver<T, P extends string, Sep extends string> = P extends `${infer K}${Sep}${infer Rest}`
