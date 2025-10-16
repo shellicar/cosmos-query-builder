@@ -1,6 +1,6 @@
 # @shellicar/cosmos-query-builder
 
-> A type-safe query builder for [Azure Cosmos DB for NoSQL](https://docs.microsoft.com/en-us/azure/cosmos-db/nosql/) with fluent API
+> A type-safe query builder for [Azure Cosmos DB for NoSQL](https://docs.microsoft.com/en-us/azure/cosmos-db/nosql/)
 
 [![npm package](https://img.shields.io/npm/v/@shellicar/cosmos-query-builder.svg)](https://npmjs.com/package/@shellicar/cosmos-query-builder)
 [![build status](https://github.com/shellicar/cosmos-query-builder/actions/workflows/node.js.yml/badge.svg)](https://github.com/shellicar/cosmos-query-builder/actions/workflows/node.js.yml)
@@ -10,7 +10,7 @@
 ## Features
 
 - 🎯 **Type-safe field access** - IntelliSense and compile-time validation instead of error-prone string queries
-- ⚡ **Fluent query building** - Chain methods instead of writing raw SQL strings
+- ⚡ **Builder pattern** - Use methods instead of writing raw SQL strings
 - 🔍 **Type-safe advanced operators** - Array operations like `ARRAY_CONTAINS` and Cosmos DB functions with full type safety
 - � **Type-safe patch operations** - JSON patch document creation with compile-time path validation
 - � **Automatic parameter generation** - Dynamic `@p0`, `@p1` parameter binding without manual parameter management
@@ -48,7 +48,7 @@ For a complete working example, see [examples/simple/src/main.ts](./examples/sim
 ### Core Libraries
 
 - [`@shellicar/core-config`](https://github.com/shellicar/core-config) - A library for securely handling sensitive configuration values like connection strings, URLs, and secrets.
-- [`@shellicar/cosmos-query-builder`](https://github.com/shellicar/cosmos-query-builder) - A type-safe query builder for Azure Cosmos DB for NoSQL with fluent API.
+- [`@shellicar/core-di`](https://github.com/shellicar/core-di) - A basic dependency injection library.
 
 ### Reference Architectures
 
@@ -81,17 +81,95 @@ Originally developed for the Circuit Breaker platform at Hope Ventures, this lib
 
 ## Feature Examples
 
-> TODO: Intro
+Type-safe query builder for Azure Cosmos DB, supporting advanced operators and structured filtering.
 
 See [readme examples](./examples/readme/src) for example source code.
 
-> TODO: Examples
+- **Builder pattern** - Use methods like `where()`, `orderBy()`, `limit()` instead of writing raw SQL.
+
+```ts
+builder.where('type', 'eq', 'Person');
+builder.where('age', 'gt', 18);
+builder.orderBy('created', SortDirection.Desc);
+builder.limit(50);
+```
+
+- **Advanced operators** - Array operations like `contains`, `in`, and fuzzy search across multiple fields.
+
+```ts
+builder.where('bones', 'contains', 'arm');
+builder.where('name.givenName', 'in', ['John', 'Jane']);
+builder.whereFuzzy('steve', ['name.givenName', 'name.familyName', 'email']);
+```
+
+- **Type-safe field access** - IntelliSense and compile-time validation for field paths and values.
+
+```ts
+// @ts-expect-error: Argument of type 'number' is not assignable to parameter of type 'string'.
+builder.where('age', 'eq', 'invalid');
+builder.where('age', 'eq', 25);
+```
+
+- **Structured filtering** - Use filter objects with type information for complex queries.
+
+```ts
+type PersonFilter = {
+  name?: {
+    givenName?: StringFilter;
+  };
+};
+const filter = {
+  name: {
+    givenName: { __typeInfo: 'StringFilter', eq: 'John' }
+  }
+} satisfies PersonFilter;
+builder.buildQuery(filter);
+```
+
+- **Patch operations** - Create type-safe JSON patch documents for Cosmos DB.
+
+```ts
+const operations = builder.patch({
+  op: 'replace',
+  path: '/name/givenName',
+  value: 'Smith'
+});
+await container.item('id', 'partitionKey').patch(operations);
+```
 
 ## Usage
 
 Check the test files for different usage scenarios.
 
-> TODO: Usage examples
+```ts
+import { createCosmosQueryBuilder, SortDirection } from '@shellicar/cosmos-query-builder';
+import type { Container } from '@azure/cosmos';
+
+type Person = {
+  id: string;
+  type: 'Person';
+  age: number;
+  created: string;
+  name: {
+    givenName: string;
+    familyName: string;
+  };
+};
+
+const queryPeople = async (container: Container) => {
+  const builder = createCosmosQueryBuilder<Person>();
+  
+  builder.where('type', 'eq', 'Person');
+  builder.where('age', 'gt', 18);
+  builder.orderBy('created', SortDirection.Desc);
+  builder.limit(50);
+  
+  const results = await builder.getAll(container);
+  console.log(`Found ${results.count} people`);
+  
+  return results.items;
+};
+```
 
 ## Credits & Inspiration
 

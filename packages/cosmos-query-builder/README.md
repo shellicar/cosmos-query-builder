@@ -1,6 +1,6 @@
 # @shellicar/cosmos-query-builder
 
-> A type-safe query builder for [Azure Cosmos DB for NoSQL](https://docs.microsoft.com/en-us/azure/cosmos-db/nosql/) with fluent API
+> A type-safe query builder for [Azure Cosmos DB for NoSQL](https://docs.microsoft.com/en-us/azure/cosmos-db/nosql/)
 
 > **Note**: This library is for Azure Cosmos DB for NoSQL (formerly SQL API). For MongoDB API, see [Azure Cosmos DB for MongoDB](https://docs.microsoft.com/en-us/azure/cosmos-db/mongodb/).
 
