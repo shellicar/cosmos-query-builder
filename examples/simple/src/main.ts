@@ -1,7 +1,8 @@
+import { env } from 'node:process';
 import { type Container, CosmosClient } from '@azure/cosmos';
 import { createCosmosQueryBuilder, SortDirection } from '@shellicar/cosmos-query-builder';
 
-const client = new CosmosClient('');
+const client = new CosmosClient(env.COSMOS_CONNECTION_STRING ?? '');
 const db = client.database('database');
 const container = db.container('container');
 

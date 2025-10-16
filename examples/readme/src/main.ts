@@ -1,8 +1,9 @@
 import type { UUID } from 'node:crypto';
+import { env } from 'node:process';
 import { CosmosClient } from '@azure/cosmos';
 import { createCosmosQueryBuilder, type ICosmosQueryBuilder, SortDirection, type StringFilter, type UUIDFilter } from '@shellicar/cosmos-query-builder';
 
-const client = new CosmosClient('');
+const client = new CosmosClient(env.COSMOS_CONNECTION_STRING ?? '');
 const db = client.database('database');
 const container = db.container('container');
 

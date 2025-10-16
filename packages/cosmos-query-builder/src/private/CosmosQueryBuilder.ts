@@ -1,7 +1,7 @@
 import type { JSONValue, PatchRequestBody, SqlParameter, SqlQuerySpec } from '@azure/cosmos';
 import type { SortDirection } from '../public/enums';
 import { ICosmosQueryBuilder, type ILogger } from '../public/interfaces';
-import type { BasicOpCode, CosmosQueryBuilderOptions, ExtendedOpCode, FeedResponse, FetchResult, InstantFilter, Container, StringFilter, UUIDFilter } from '../public/types';
+import type { BasicOpCode, Container, CosmosQueryBuilderOptions, ExtendedOpCode, FeedResponse, FetchResult, InstantFilter, StringFilter, UUIDFilter } from '../public/types';
 import { operators } from './consts';
 import { DefaultLogger } from './DefaultLogger';
 import type { ExtractPatchPathExpressions, ExtractPathExpressions, PatchPathValue, PathValue, StringFilterData } from './types';

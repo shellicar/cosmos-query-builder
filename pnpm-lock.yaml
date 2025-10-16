@@ -48,6 +48,54 @@ importers:
         specifier: ^5.9.2
         version: 5.9.3
 
+  examples/cosmos451:
+    devDependencies:
+      '@azure/cosmos':
+        specifier: 4.5.1
+        version: 4.5.1
+      '@shellicar/build-clean':
+        specifier: ^1.0.0
+        version: 1.1.0(esbuild@0.25.10)(vite@7.1.9(@types/node@24.6.2)(terser@5.44.0))
+      '@shellicar/cosmos-query-builder':
+        specifier: workspace:^
+        version: link:../../packages/cosmos-query-builder
+      '@tsconfig/node22':
+        specifier: ^22.0.2
+        version: 22.0.2
+      '@types/node':
+        specifier: ^24.3.0
+        version: 24.7.2
+      tsup:
+        specifier: ^8.5.0
+        version: 8.5.0(postcss@8.5.6)(typescript@5.9.3)
+      typescript:
+        specifier: ^5.9.2
+        version: 5.9.3
+
+  examples/cosmos460:
+    devDependencies:
+      '@azure/cosmos':
+        specifier: 4.6.0
+        version: 4.6.0
+      '@shellicar/build-clean':
+        specifier: ^1.0.0
+        version: 1.1.0(esbuild@0.25.10)(vite@7.1.9(@types/node@24.6.2)(terser@5.44.0))
+      '@shellicar/cosmos-query-builder':
+        specifier: workspace:^
+        version: link:../../packages/cosmos-query-builder
+      '@tsconfig/node22':
+        specifier: ^22.0.2
+        version: 22.0.2
+      '@types/node':
+        specifier: ^24.3.0
+        version: 24.7.2
+      tsup:
+        specifier: ^8.5.0
+        version: 8.5.0(postcss@8.5.6)(typescript@5.9.3)
+      typescript:
+        specifier: ^5.9.2
+        version: 5.9.3
+
   examples/esm:
     devDependencies:
       '@azure/cosmos':
