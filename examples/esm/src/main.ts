@@ -1,8 +1,10 @@
 import type { UUID } from 'node:crypto';
-import type { Container } from '@azure/cosmos';
+import { type Container, CosmosClient } from '@azure/cosmos';
 import { createCosmosQueryBuilder, type ICosmosQueryBuilder, SortDirection, type StringFilter, type UUIDFilter } from '@shellicar/cosmos-query-builder';
 
-const container: Container = null!;
+const client = new CosmosClient('');
+const db = client.database('database');
+const container = db.container('container');
 
 enum Sex {
   Male = 'Male',

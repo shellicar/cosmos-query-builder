@@ -29,8 +29,17 @@ pnpm add @shellicar/cosmos-query-builder
 ```ts
 import { createCosmosQueryBuilder, SortDirection } from '@shellicar/cosmos-query-builder';
 
-// TODO: Add proper example when examples are created
+const builder = createCosmosQueryBuilder<Person>();
+
+builder.where('type', 'eq', 'Person');
+builder.where('age', 'gt', 18);
+builder.orderBy('created', SortDirection.Desc);
+builder.limit(50);
+
+const results = await builder.getAll(container);
 ```
+
+For a complete working example, see [examples/simple/src/main.ts](./examples/simple/src/main.ts).
 
 <!-- BEGIN_ECOSYSTEM -->
 
