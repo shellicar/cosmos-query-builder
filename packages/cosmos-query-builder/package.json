@@ -1,7 +1,7 @@
 {
   "name": "@shellicar/cosmos-query-builder",
   "private": false,
-  "version": "1.0.0",
+  "version": "1.0.0-preview.1",
   "type": "module",
   "license": "MIT",
   "author": "Stephen Hellicar",
