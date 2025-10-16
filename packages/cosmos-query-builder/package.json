@@ -51,6 +51,7 @@
     "@azure/cosmos": "^4.5.1",
     "@shellicar/build-clean": "^1.0.0",
     "@tsconfig/node20": "^20.1.6",
+    "@tsconfig/node22": "^22.0.2",
     "@types/node": "^24.3.0",
     "terser": "^5.43.1",
     "tsup": "^8.5.0",

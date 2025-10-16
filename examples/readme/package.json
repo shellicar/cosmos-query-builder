@@ -12,7 +12,7 @@
     "@azure/cosmos": "^4.5.1",
     "@shellicar/build-clean": "^1.0.0",
     "@shellicar/cosmos-query-builder": "workspace:^",
-    "@tsconfig/node20": "^20.1.6",
+    "@tsconfig/node22": "^22.0.2",
     "@types/node": "^24.3.0",
     "tsup": "^8.5.0",
     "typescript": "^5.9.2"
