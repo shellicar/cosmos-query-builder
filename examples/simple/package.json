@@ -1,0 +1,20 @@
+{
+  "name": "@shellicar/cosmos-query-builder-examples-simple",
+  "private": true,
+  "type": "module",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsup-node",
+    "start": "node .",
+    "type-check": "tsc -p tsconfig.check.json"
+  },
+  "devDependencies": {
+    "@azure/cosmos": "^4.9.0",
+    "@shellicar/build-clean": "^1.1.2",
+    "@shellicar/cosmos-query-builder": "workspace:^",
+    "@tsconfig/node22": "^22.0.5",
+    "@types/node": "^25.0.3",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3"
+  }
+}
