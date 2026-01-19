@@ -210,6 +210,20 @@ export class CosmosQueryBuilder<T extends Record<string, any>> extends ICosmosQu
         this._queries.push(clause);
         this._parameters.push({ name: parameterName, value });
       }
+    } else if (operator === 'ieq') {
+      // Handle case-insensitive equality for strings
+      if (value !== undefined) {
+        const clause = `StringEquals(c.${field}, ${parameterName}, true)`;
+        this._queries.push(clause);
+        this._parameters.push({ name: parameterName, value });
+      }
+    } else if (operator === 'ine') {
+      // Handle case-insensitive equality for strings
+      if (value !== undefined) {
+        const clause = `Not(StringEquals(c.${field}, ${parameterName}, true))`;
+        this._queries.push(clause);
+        this._parameters.push({ name: parameterName, value });
+      }
     } else {
       const sqlOperator = operators[operator];
       if (sqlOperator != null && value !== undefined) {
@@ -240,8 +254,8 @@ export class CosmosQueryBuilder<T extends Record<string, any>> extends ICosmosQu
 
     if (this._queries.length > 0) {
       lines.push('WHERE');
-      const where = this._queries.join('\n  AND ');
-      lines.push(where);
+      const where = this._queries.join(' AND\n  ');
+      lines.push(`  ${where}`);
     }
 
     if (this._orderBy != null) {

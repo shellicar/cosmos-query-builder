@@ -33,7 +33,7 @@ export type TypeInfo = {
 };
 
 export type ExtendedOpCode = BasicOpCode | 'contains' | 'in' | 'isNull';
-export type BasicOpCode = 'eq' | 'gt' | 'lt' | 'ge' | 'le' | 'ne';
+export type BasicOpCode = 'eq' | 'ieq' | 'gt' | 'lt' | 'ge' | 'le' | 'ne' | 'ine';
 
 export type FetchResult<T> = {
   items: T[];

@@ -97,6 +97,7 @@ const main = async () => {
   builder.whereOr([
     { field: 'name.givenName', operator: 'eq', value: 'John' },
     { field: 'name.familyName', operator: 'eq', value: 'Smith' },
+    { field: 'name.familyName', operator: 'ieq', value: 'smith' },
   ]);
 
   // Pagination
