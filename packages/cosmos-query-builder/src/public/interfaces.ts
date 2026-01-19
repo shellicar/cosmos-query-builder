@@ -20,7 +20,7 @@ export abstract class ICosmosQueryBuilder<T extends Record<string, any>> {
    * builder.limit(100);
    * ```
    */
-  public abstract limit(limit: number): void;
+  public abstract limit(limit: number): ICosmosQueryBuilder<T>;
 
   /**
    * Adds a JOIN clause to the query
@@ -31,7 +31,7 @@ export abstract class ICosmosQueryBuilder<T extends Record<string, any>> {
    * builder.join('b', 'bones');
    * ```
    */
-  public abstract join<P extends ExtractPathExpressions<T>>(value: string, statement: P): void;
+  public abstract join<P extends ExtractPathExpressions<T>>(value: string, statement: P): ICosmosQueryBuilder<T>;
 
   /**
    * Sets the SELECT clause for the query
@@ -41,7 +41,7 @@ export abstract class ICosmosQueryBuilder<T extends Record<string, any>> {
    * builder.select('COUNT(1) as count, UPPER(c.name.givenName) as name');
    * ```
    */
-  public abstract select(value: string): void;
+  public abstract select(value: string): ICosmosQueryBuilder<T>;
 
   /**
    * Sets the GROUP BY clause for the query
@@ -51,7 +51,7 @@ export abstract class ICosmosQueryBuilder<T extends Record<string, any>> {
    * builder.groupBy('UPPER(c.sex)');
    * ```
    */
-  public abstract groupBy(value: string): void;
+  public abstract groupBy(value: string): ICosmosQueryBuilder<T>;
 
   /**
    * Performs fuzzy search across multiple fields
@@ -62,7 +62,7 @@ export abstract class ICosmosQueryBuilder<T extends Record<string, any>> {
    * builder.whereFuzzy('steve', ['name.givenName', 'name.familyName', 'email']);
    * ```
    */
-  public abstract whereFuzzy<P extends ExtractPathExpressions<T>>(value: string, fields: [P, ...P[]]): void;
+  public abstract whereFuzzy<P extends ExtractPathExpressions<T>>(value: string, fields: [P, ...P[]]): ICosmosQueryBuilder<T>;
 
   /**
    * Adds a raw WHERE clause with field, operator, and value
@@ -74,7 +74,7 @@ export abstract class ICosmosQueryBuilder<T extends Record<string, any>> {
    * builder.whereRaw('p.id', 'eq', 'some-id');
    * ```
    */
-  public abstract whereRaw(field: string, operator: Exclude<ExtendedOpCode, 'isNull' | 'contains' | 'in'>, value: JSONValue): void;
+  public abstract whereRaw(field: string, operator: Exclude<ExtendedOpCode, 'isNull' | 'contains' | 'in'>, value: JSONValue): ICosmosQueryBuilder<T>;
 
   /**
    * Adds an OR clause to match items satisfying any of the given conditions
@@ -87,7 +87,7 @@ export abstract class ICosmosQueryBuilder<T extends Record<string, any>> {
    * ]);
    * ```
    */
-  public abstract whereOr(conditions: Array<{ field: string; operator: ExtendedOpCode; value: JSONValue }>): void;
+  public abstract whereOr(conditions: Array<{ field: string; operator: ExtendedOpCode; value: JSONValue }>): ICosmosQueryBuilder<T>;
 
   /**
    * Creates a JSON patch document for Cosmos DB patch operations
@@ -105,6 +105,12 @@ export abstract class ICosmosQueryBuilder<T extends Record<string, any>> {
    * ```
    */
   public abstract patch<P extends ExtractPatchPathExpressions<T>>(...operations: Array<{ path: P; op: 'set' | 'add' | 'replace'; value: PatchPathValue<T, P> } | { path: P; op: 'remove' }>): PatchRequestBody;
+
+  /**
+   * Add a custom un-typed where clause
+   * @param filter
+   */
+  public abstract filter(filter: { clause: string; parameter?: JSONValue }): ICosmosQueryBuilder<T>;
 
   /**
    * Builds query conditions from a structured object with type filters
@@ -141,22 +147,22 @@ export abstract class ICosmosQueryBuilder<T extends Record<string, any>> {
    * builder.where('deletedAt', 'isNull');
    * ```
    */
-  public abstract where<P extends ExtractPathExpressions<T>>(field: P, operator: 'isNull'): void;
-  public abstract where<P extends ExtractPathExpressions<T>>(field: P, operator: 'in', value: readonly PathValue<T, P>[]): void;
-  public abstract where<P extends ExtractPathExpressions<T>>(field: P, operator: 'contains', value: PathValue<T, P>[number]): void;
-  public abstract where<P extends ExtractPathExpressions<T>, V extends PathValue<T, P>>(field: P, operator: BasicOpCode, value: V): void;
+  public abstract where<P extends ExtractPathExpressions<T>>(field: P, operator: 'isNull'): ICosmosQueryBuilder<T>;
+  public abstract where<P extends ExtractPathExpressions<T>>(field: P, operator: 'in', value: readonly PathValue<T, P>[]): ICosmosQueryBuilder<T>;
+  public abstract where<P extends ExtractPathExpressions<T>>(field: P, operator: 'contains', value: PathValue<T, P>[number]): ICosmosQueryBuilder<T>;
+  public abstract where<P extends ExtractPathExpressions<T>, V extends PathValue<T, P>>(field: P, operator: BasicOpCode, value: V): ICosmosQueryBuilder<T>;
 
   /**
    * Clears any existing ordering
    */
-  public abstract orderBy(): void;
+  public abstract orderBy(): ICosmosQueryBuilder<T>;
 
   /**
    * Sets ordering by field and direction
    * @param field Field path to order by
    * @param direction Sort direction (ASC/DESC)
    */
-  public abstract orderBy<P extends ExtractPathExpressions<T>>(field: P, direction: SortDirection): void;
+  public abstract orderBy<P extends ExtractPathExpressions<T>>(field: P, direction: SortDirection): ICosmosQueryBuilder<T>;
 
   /**
    * Builds and returns the final SQL query specification

@@ -7,9 +7,11 @@ import { DefaultLogger } from './DefaultLogger';
 import type { ExtractPatchPathExpressions, ExtractPathExpressions, PatchPathValue, PathValue, StringFilterData } from './types';
 
 export class CosmosQueryBuilder<T extends Record<string, any>> extends ICosmosQueryBuilder<T> {
-  private _orderBy?: string;
+  // TODO: Allow setting
+  private _indent = '  ';
+  private _orderBy: string[] = [];
   private _select = '*';
-  private _groupBy: string | null = null;
+  private _groupBy: string[] = [];
   private _join = '';
   private _from = 'c';
   private _queries: string[] = [];
@@ -109,22 +111,25 @@ export class CosmosQueryBuilder<T extends Record<string, any>> extends ICosmosQu
     this._buildQuery(query, prefix);
   }
 
-  public override orderBy(): void;
-  public override orderBy<P extends ExtractPathExpressions<T>>(field: P, direction: SortDirection): void;
-  public override orderBy<P extends ExtractPathExpressions<T>>(field?: P, direction?: SortDirection) {
+  public override orderBy(): ICosmosQueryBuilder<T>;
+  public override orderBy<P extends ExtractPathExpressions<T>>(field: P, direction: SortDirection): ICosmosQueryBuilder<T>;
+  public override orderBy<P extends ExtractPathExpressions<T>>(field?: P, direction?: SortDirection): ICosmosQueryBuilder<T> {
     if (field == null || direction == null) {
-      this._orderBy = undefined;
+      this._orderBy = [];
     } else {
-      this._orderBy = `\nORDER BY\n c.${field} ${direction}`;
+      this._orderBy = ['ORDER BY', `${this._indent}c.${field} ${direction}`];
     }
+    return this;
   }
 
-  public override groupBy(value: string): void {
-    this._groupBy = `\nGROUP BY\n ${value}`;
+  public override groupBy(value: string): ICosmosQueryBuilder<T> {
+    this._groupBy = ['GROUP BY', `${this._indent}${value}`];
+    return this;
   }
 
-  public override select(value: string): void {
+  public override select(value: string): ICosmosQueryBuilder<T> {
     this._select = value;
+    return this;
   }
 
   private parameter(name: string, value: JSONValue): void {
@@ -134,15 +139,17 @@ export class CosmosQueryBuilder<T extends Record<string, any>> extends ICosmosQu
     });
   }
 
-  public override limit(limit: number): void {
+  public override limit(limit: number): ICosmosQueryBuilder<T> {
     this._limit = limit;
+    return this;
   }
 
-  public override join<P extends ExtractPathExpressions<T>>(value: string, statement: P): void {
+  public override join<P extends ExtractPathExpressions<T>>(value: string, statement: P): ICosmosQueryBuilder<T> {
     this._join = `${value} IN c.${statement}`;
+    return this;
   }
 
-  public override whereFuzzy<P extends ExtractPathExpressions<T>>(value: string, fields: [P, ...P[]]): void {
+  public override whereFuzzy<P extends ExtractPathExpressions<T>>(value: string, fields: [P, ...P[]]): ICosmosQueryBuilder<T> {
     const parameterName = `@p${this._parameters.length}`;
     const lines: string[] = [];
     for (const field of fields) {
@@ -152,16 +159,18 @@ export class CosmosQueryBuilder<T extends Record<string, any>> extends ICosmosQu
     const queryLine = `(${lines.join(' OR ')})`;
     this._queries.push(queryLine);
     this._parameters.push({ name: parameterName, value });
+    return this;
   }
 
-  public override whereRaw(field: string, operator: Exclude<ExtendedOpCode, 'isNull' | 'contains' | 'in'>, value: JSONValue): void {
+  public override whereRaw(field: string, operator: Exclude<ExtendedOpCode, 'isNull' | 'contains' | 'in'>, value: JSONValue): ICosmosQueryBuilder<T> {
     const parameterName = `@p${this._parameters.length}`;
     const sqlOperator = operators[operator];
     this._queries.push(`${field} ${sqlOperator} ${parameterName}`);
     this._parameters.push({ name: parameterName, value });
+    return this;
   }
 
-  public override whereOr(conditions: Array<{ field: string; operator: ExtendedOpCode; value: JSONValue }>): void {
+  public override whereOr(conditions: Array<{ field: string; operator: ExtendedOpCode; value: JSONValue }>): ICosmosQueryBuilder<T> {
     const orClauses: string[] = [];
     for (const condition of conditions) {
       const { field, operator, value } = condition;
@@ -185,13 +194,14 @@ export class CosmosQueryBuilder<T extends Record<string, any>> extends ICosmosQu
     if (orClauses.length > 0) {
       this._queries.push(`(${orClauses.join(' OR ')})`);
     }
+    return this;
   }
 
-  public override where<P extends ExtractPathExpressions<T>>(field: P, operator: 'isNull'): void;
-  public override where<P extends ExtractPathExpressions<T>>(field: P, operator: 'in', value: readonly PathValue<T, P>[]): void;
-  public override where<P extends ExtractPathExpressions<T>>(field: P, operator: 'contains', value: PathValue<T, P>[number]): void;
-  public override where<P extends ExtractPathExpressions<T>, V extends PathValue<T, P>>(field: P, operator: BasicOpCode, value: V): void;
-  public override where<P extends ExtractPathExpressions<T>, V extends PathValue<T, P>>(field: P, operator: ExtendedOpCode, value?: V | readonly V[]): void {
+  public override where<P extends ExtractPathExpressions<T>>(field: P, operator: 'isNull'): ICosmosQueryBuilder<T>;
+  public override where<P extends ExtractPathExpressions<T>>(field: P, operator: 'in', value: readonly PathValue<T, P>[]): ICosmosQueryBuilder<T>;
+  public override where<P extends ExtractPathExpressions<T>>(field: P, operator: 'contains', value: PathValue<T, P>[number]): ICosmosQueryBuilder<T>;
+  public override where<P extends ExtractPathExpressions<T>, V extends PathValue<T, P>>(field: P, operator: BasicOpCode, value: V): ICosmosQueryBuilder<T>;
+  public override where<P extends ExtractPathExpressions<T>, V extends PathValue<T, P>>(field: P, operator: ExtendedOpCode, value?: V | readonly V[]): ICosmosQueryBuilder<T> {
     const parameterName = `@p${this._parameters.length}`;
 
     if (operator === 'isNull') {
@@ -231,9 +241,10 @@ export class CosmosQueryBuilder<T extends Record<string, any>> extends ICosmosQu
         this._parameters.push({ name: parameterName, value });
       }
     }
+    return this;
   }
 
-  public filter(x: { clause: string; parameter?: JSONValue }): void {
+  public override filter(x: { clause: string; parameter?: JSONValue }): ICosmosQueryBuilder<T> {
     const paramName = `@p${this._parameters.length}`;
     this._queries.push(x.clause.replace('@', paramName));
     if (x.parameter != null) {
@@ -242,28 +253,25 @@ export class CosmosQueryBuilder<T extends Record<string, any>> extends ICosmosQu
         value: x.parameter,
       });
     }
+    return this;
   }
 
   public override query(): SqlQuerySpec {
     const lines: string[] = [];
-    lines.push(`SELECT\n  ${this._select}`);
-    lines.push(`FROM\n  ${this._from}`);
+    lines.push(`SELECT\n${this._indent}${this._select}`);
+    lines.push(`FROM\n${this._indent}${this._from}`);
     if (this._join !== '') {
-      lines.push(`JOIN\n  ${this._join}`);
+      lines.push(`JOIN\n${this._indent}${this._join}`);
     }
 
     if (this._queries.length > 0) {
       lines.push('WHERE');
-      const where = this._queries.join(' AND\n  ');
-      lines.push(`  ${where}`);
+      const where = this._queries.join(` AND\n${this._indent}`);
+      lines.push(`${this._indent}${where}`);
     }
 
-    if (this._orderBy != null) {
-      lines.push(this._orderBy);
-    }
-    if (this._groupBy != null) {
-      lines.push(this._groupBy);
-    }
+    lines.push(...this._orderBy);
+    lines.push(...this._groupBy);
     if (this._limit != null) {
       lines.push('OFFSET 0');
       lines.push(`LIMIT ${this._limit}`);

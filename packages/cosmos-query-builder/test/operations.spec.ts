@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createCosmosQueryBuilder } from '../src';
+import { createCosmosQueryBuilder, SortDirection } from '../src';
 
 type MyEntity = {
   givenName: string;
@@ -80,6 +80,63 @@ FROM
   c
 WHERE
   Not(StringEquals(c.givenName, @p0, true))`);
+    });
+  });
+
+  describe('where and order', () => {
+    it('two where and order', () => {
+      const builder = createCosmosQueryBuilder<MyEntity>();
+      builder.select('c.sex');
+      builder.where('givenName', 'eq', 'Joe');
+      builder.where('familyName', 'eq', 'Bloggs');
+      builder.orderBy('givenName', SortDirection.Desc);
+      builder.limit(10);
+      builder.groupBy('UPPER(c.sex) as sex');
+      const query = builder.query();
+
+      expect(query.query).toBe(`SELECT
+  c.sex
+FROM
+  c
+WHERE
+  c.givenName = @p0 AND
+  c.familyName = @p1
+ORDER BY
+  c.givenName DESC
+GROUP BY
+  UPPER(c.sex) as sex
+OFFSET 0
+LIMIT 10`);
+    });
+
+    it('one where and order', () => {
+      const builder = createCosmosQueryBuilder<MyEntity>();
+      builder.where('givenName', 'eq', 'Joe');
+      builder.orderBy('givenName', SortDirection.Desc);
+      const query = builder.query();
+      expect(query.query).toBe(`SELECT
+  *
+FROM
+  c
+WHERE
+  c.givenName = @p0
+ORDER BY
+  c.givenName DESC`);
+    });
+  });
+
+  describe('builder pattern', () => {
+    it('allow chaining operations', () => {
+      const query = createCosmosQueryBuilder<MyEntity>().where('givenName', 'eq', 'Joe').orderBy('givenName', SortDirection.Desc).query();
+
+      expect(query.query).toBe(`SELECT
+  *
+FROM
+  c
+WHERE
+  c.givenName = @p0
+ORDER BY
+  c.givenName DESC`);
     });
   });
 });

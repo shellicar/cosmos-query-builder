@@ -5,6 +5,8 @@
 ### Added
 
 - Add `ieq` and `ine` (case-insensitive) operations for `where(...)`.
+- Add `filter` for custom un-typed where clauses.
+- Allow function chaining.
 
 ### Changed
 
