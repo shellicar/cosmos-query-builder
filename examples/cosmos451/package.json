@@ -10,10 +10,10 @@
   },
   "devDependencies": {
     "@azure/cosmos": "4.5.1",
-    "@shellicar/build-clean": "^1.1.2",
+    "@shellicar/build-clean": "^1.2.3",
     "@shellicar/cosmos-query-builder": "workspace:^",
     "@tsconfig/node22": "^22.0.5",
-    "@types/node": "^25.0.9",
+    "@types/node": "^25.3.2",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3"
   }
